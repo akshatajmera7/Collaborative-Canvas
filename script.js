@@ -12,35 +12,49 @@ let currentColor = 'blue';
 let rectangles = [];
 let selectedRect = null;
 let isDragging = false;
+let isResizing = false;
+let isRotating = false;
 let offsetX, offsetY;
+let initialAngle = 0;
 
 function drawRectangles() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     rectangles.forEach(rect => {
         ctx.fillStyle = rect.color;
+        ctx.save();
+        ctx.translate(rect.x, rect.y);
+        ctx.rotate(rect.angle || 0);
         if (rect.type === 'circle') {
             ctx.beginPath();
-            ctx.arc(rect.x, rect.y, rect.radius, 0, Math.PI * 2);
+            ctx.arc(0, 0, rect.radius, 0, Math.PI * 2);
             ctx.fill();
             ctx.closePath();
-        } else if (rect.type === 'arrow') {
+        } else if (rect.type === 'onearrow' || rect.type === 'twoarrow') {
             ctx.beginPath();
-            ctx.moveTo(rect.x, rect.y);
-            ctx.lineTo(rect.x + rect.width, rect.y);
-            ctx.lineTo(rect.x + rect.width - 10, rect.y - 10);
-            ctx.moveTo(rect.x + rect.width, rect.y);
-            ctx.lineTo(rect.x + rect.width - 10, rect.y + 10);
+            ctx.moveTo(0, 0);
+            ctx.lineTo(rect.width, 0);
+            ctx.stroke();
+            if (rect.type === 'onearrow' || rect.type === 'twoarrow') {
+                ctx.lineTo(rect.width - 10, -10);
+                ctx.moveTo(rect.width, 0);
+                ctx.lineTo(rect.width - 10, 10);
+            }
+            if (rect.type === 'twoarrow') {
+                ctx.moveTo(0, 0);
+                ctx.lineTo(10, -10);
+                ctx.moveTo(0, 0);
+                ctx.lineTo(10, 10);
+            }
             ctx.stroke();
             ctx.closePath();
         } else if (rect.type === 'tiltedRectangle') {
             ctx.save();
-            ctx.translate(rect.x + rect.width / 2, rect.y + rect.height / 2);
+            ctx.translate(rect.width / 2, rect.height / 2);
             ctx.rotate(Math.PI / 6);
             ctx.fillRect(-rect.width / 2, -rect.height / 2, rect.width, rect.height);
             ctx.restore();
         } else if (rect.type === 'oval') {
             ctx.save();
-            ctx.translate(rect.x, rect.y);
             ctx.scale(1, 0.5);
             ctx.beginPath();
             ctx.arc(0, 0, rect.radius, 0, Math.PI * 2);
@@ -48,28 +62,42 @@ function drawRectangles() {
             ctx.restore();
         } else if (rect.type === 'parallelogram') {
             ctx.beginPath();
-            ctx.moveTo(rect.x, rect.y);
-            ctx.lineTo(rect.x + rect.width, rect.y);
-            ctx.lineTo(rect.x + rect.width - 20, rect.y + rect.height);
-            ctx.lineTo(rect.x - 20, rect.y + rect.height);
+            ctx.moveTo(0, 0);
+            ctx.lineTo(rect.width, 0);
+            ctx.lineTo(rect.width - 20, rect.height);
+            ctx.lineTo(-20, rect.height);
             ctx.closePath();
             ctx.fill();
         } else if (rect.type === 'kite') {
             ctx.beginPath();
-            ctx.moveTo(rect.x, rect.y);
-            ctx.lineTo(rect.x + rect.width / 2, rect.y - rect.height);
-            ctx.lineTo(rect.x + rect.width, rect.y);
-            ctx.lineTo(rect.x + rect.width / 2, rect.y + rect.height);
+            ctx.moveTo(0, 0);
+            ctx.lineTo(rect.width / 2, -rect.height);
+            ctx.lineTo(rect.width, 0);
+            ctx.lineTo(rect.width / 2, rect.height);
             ctx.closePath();
             ctx.fill();
         } else {
-            ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+            ctx.fillRect(0, 0, rect.width, rect.height);
         }
         if (rect === selectedRect) {
-            ctx.strokeStyle = 'yellow';
+            ctx.strokeStyle = 'red';
             ctx.lineWidth = 5;
-            ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+            if (rect.type === 'circle' || rect.type === 'oval') {
+                ctx.beginPath();
+                ctx.arc(0, 0, rect.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.closePath();
+            } else if (rect.type === 'onearrow' || rect.type === 'twoarrow') {
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(rect.width, 0);
+                ctx.stroke();
+                ctx.closePath();
+            } else {
+                ctx.strokeRect(0, 0, rect.width, rect.height);
+            }
         }
+        ctx.restore();
         ctx.fillStyle = 'white';
         ctx.font = '20px Arial';
         ctx.textAlign = 'center';
@@ -79,34 +107,20 @@ function drawRectangles() {
 }
 
 create1.addEventListener('click', () => {
-    const rect = { x: 50, y: 50, width: 200, height: 100, color: currentColor, text: '' };
+    const rect = { x: 50, y: 50, width: 200, height: 100, color: currentColor, text: '', angle: 0 };
     rectangles.push(rect);
     selectedRect = rect;
     drawRectangles();
 });
 
-// Color Picker Modal
-const colorModal = document.getElementById('colorModal');
-const colorPicker = document.getElementById('colorPicker');
-const span = document.getElementsByClassName('close')[0];
-
 pickColor.addEventListener('click', () => {
-    colorModal.style.display = 'block';
+    colorPicker.click();
 });
-
-span.onclick = function() {
-    colorModal.style.display = 'none';
-}
-
-window.onclick = function(event) {
-    if (event.target == colorModal) {
-        colorModal.style.display = 'none';
-    }
-}
 
 colorPicker.addEventListener('input', () => {
     if (selectedRect) {
         selectedRect.color = colorPicker.value;
+        currentColor = colorPicker.value;
         drawRectangles();
     }
 });
@@ -171,21 +185,21 @@ shapeButtons.forEach(button => {
         const shape = button.id.replace('shape', '').toLowerCase();
         let newShape;
         if (shape === 'circle') {
-            newShape = { x: 150, y: 150, radius: 50, color: currentColor, text: '', type: 'circle' };
+            newShape = { x: 150, y: 150, radius: 50, color: currentColor, text: '', type: 'circle', angle: 0 };
         } else if (shape === 'onearrow') {
-            newShape = { x: 50, y: 50, width: 100, height: 10, color: currentColor, text: '', type: 'arrow' };
+            newShape = { x: 50, y: 50, width: 100, height: 10, color: currentColor, text: '', type: 'onearrow', angle: 0 };
         } else if (shape === 'twoarrow') {
-            newShape = { x: 50, y: 50, width: 100, height: 10, color: currentColor, text: '', type: 'arrow' };
+            newShape = { x: 50, y: 50, width: 100, height: 10, color: currentColor, text: '', type: 'twoarrow', angle: 0 };
         } else if (shape === 'rectangle') {
-            newShape = { x: 50, y: 50, width: 200, height: 100, color: currentColor, text: '', type: 'rectangle' };
+            newShape = { x: 50, y: 50, width: 200, height: 100, color: currentColor, text: '', type: 'rectangle', angle: 0 };
         } else if (shape === 'tiltedrectangle') {
-            newShape = { x: 50, y: 50, width: 200, height: 100, color: currentColor, text: '', type: 'tiltedRectangle' };
+            newShape = { x: 50, y: 50, width: 200, height: 100, color: currentColor, text: '', type: 'tiltedRectangle', angle: 0 };
         } else if (shape === 'oval') {
-            newShape = { x: 150, y: 150, radius: 50, color: currentColor, text: '', type: 'oval' };
+            newShape = { x: 150, y: 150, radius: 50, color: currentColor, text: '', type: 'oval', angle: 0 };
         } else if (shape === 'parallelogram') {
-            newShape = { x: 50, y: 50, width: 200, height: 100, color: currentColor, text: '', type: 'parallelogram' };
+            newShape = { x: 50, y: 50, width: 200, height: 100, color: currentColor, text: '', type: 'parallelogram', angle: 0 };
         } else if (shape === 'kite') {
-            newShape = { x: 50, y: 50, width: 100, height: 100, color: currentColor, text: '', type: 'kite' };
+            newShape = { x: 50, y: 50, width: 100, height: 100, color: currentColor, text: '', type: 'kite', angle: 0 };
         }
         rectangles.push(newShape);
         selectedRect = newShape;
@@ -198,18 +212,37 @@ canvas.addEventListener('mousedown', (e) => {
     const mouseX = e.offsetX;
     const mouseY = e.offsetY;
     selectedRect = rectangles.find(rect => {
+        const dx = mouseX - rect.x;
+        const dy = mouseY - rect.y;
         if (rect.type === 'circle') {
-            const dx = mouseX - rect.x;
-            const dy = mouseY - rect.y;
             return dx * dx + dy * dy <= rect.radius * rect.radius;
+        } else if (rect.type === 'onearrow' || rect.type === 'twoarrow') {
+            return dx >= 0 && dx <= rect.width && Math.abs(dy) <= 10;
+        } else if (rect.type === 'oval') {
+            return dx * dx + (dy * 2) * (dy * 2) <= rect.radius * rect.radius;
         } else {
             return mouseX >= rect.x && mouseX <= rect.x + rect.width && mouseY >= rect.y && mouseY <= rect.y + rect.height;
         }
     });
     if (selectedRect) {
-        isDragging = true;
-        offsetX = mouseX - selectedRect.x;
-        offsetY = mouseY - selectedRect.y;
+        const dx = mouseX - selectedRect.x;
+        const dy = mouseY - selectedRect.y;
+        if (dx >= selectedRect.width - 10 && dy >= selectedRect.height - 10) {
+            isRotating = true;
+            initialAngle = Math.atan2(dy, dx) - (selectedRect.angle || 0);
+        } else if (selectedRect.type === 'onearrow' || selectedRect.type === 'twoarrow') {
+            if (dx >= selectedRect.width - 10) {
+                isResizing = true;
+            } else {
+                isDragging = true;
+                offsetX = dx;
+                offsetY = dy;
+            }
+        } else {
+            isDragging = true;
+            offsetX = dx;
+            offsetY = dy;
+        }
         rectangles = rectangles.filter(rect => rect !== selectedRect);
         rectangles.push(selectedRect); // Move selected rectangle to the top
         drawRectangles();
@@ -221,11 +254,21 @@ canvas.addEventListener('mousemove', (e) => {
         selectedRect.x = e.offsetX - offsetX;
         selectedRect.y = e.offsetY - offsetY;
         drawRectangles();
+    } else if (isResizing && selectedRect) {
+        selectedRect.width = e.offsetX - selectedRect.x;
+        drawRectangles();
+    } else if (isRotating && selectedRect) {
+        const dx = e.offsetX - selectedRect.x;
+        const dy = e.offsetY - selectedRect.y;
+        selectedRect.angle = Math.atan2(dy, dx) - initialAngle;
+        drawRectangles();
     }
 });
 
 canvas.addEventListener('mouseup', () => {
     isDragging = false;
+    isResizing = false;
+    isRotating = false;
 });
 
 canvas.addEventListener('dblclick', (e) => {
