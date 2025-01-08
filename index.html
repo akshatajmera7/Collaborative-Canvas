@@ -5,16 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Canvas</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
+            background: linear-gradient(135deg, #F7F8FA, #E9ECEF);
             font-family: 'Roboto', sans-serif;
-            color: #ecf0f1;
+            color: #333;
         }
         header {
-            background: linear-gradient(90deg, #2c3e50, #4ca1af);
+            background: linear-gradient(90deg, #6A1B9A, #D500F9);
             padding: 20px;
             text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        header img {
+            width: 50px;
+            height: 50px;
+            margin-right: 20px;
         }
         .modal {
             display: none;
@@ -35,6 +44,7 @@
             border: 1px solid #888;
             width: 80%;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
         }
         .close {
             color: #aaa;
@@ -58,25 +68,25 @@
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         }
         .button-primary {
-            background-color: #4CAF50;
+            background: #4CAF50;
             color: white;
         }
         .button-primary:hover {
-            background-color: #3e8e41;
+            background: #388E3C;
         }
         .button-secondary {
-            background-color: #3498db;
+            background: #2196F3;
             color: white;
         }
         .button-secondary:hover {
-            background-color: #2980b9;
+            background: #1976D2;
         }
         .button-danger {
-            background-color: #e74c3c;
+            background: #F44336;
             color: white;
         }
         .button-danger:hover {
-            background-color: #c0392b;
+            background: #D32F2F;
         }
         .canvas-container {
             display: flex;
@@ -85,29 +95,85 @@
             margin-top: 20px;
         }
         .canvas {
-            background-color: #e3e6e8;
+            background: #F5F5F5;
             border: 2px solid #d1d5da;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-image: linear-gradient(#E0E0E0 1px, transparent 1px), linear-gradient(to right, #E0E0E0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: #333333;
+            color: #FFFFFF;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position the tooltip above the text */
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
         }
     </style>
 </head>
 <body>
     <header>
+        <!-- <img src="path/to/your/image.png" alt="Collaboration Icon"> -->
         <h1 class="text-3xl font-bold">My Collaborative Canvas</h1>
     </header>
 
     <div class="flex justify-center">
         <div class="flex flex-col items-center">
             <div class="mb-4">
-                <button id="Create1" class="button button-secondary">Create Note</button>
-                <button id="PickColor" class="button button-secondary">Pick Color</button>
-                <button id="AddShape" class="button button-secondary">Add Shape</button>
+                <div class="tooltip">
+                    <button id="Create1" class="button button-secondary"><i class="fas fa-sticky-note"></i> Create Note</button>
+                    <span class="tooltiptext">Create a new note on the canvas</span>
+                </div>
+                <div class="tooltip">
+                    <button id="PickColor" class="button button-secondary"><i class="fas fa-palette"></i> Pick Color</button>
+                    <span class="tooltiptext">Pick a color for the shapes</span>
+                </div>
+                <div class="tooltip">
+                    <button id="AddShape" class="button button-secondary"><i class="fas fa-shapes"></i> Add Shape</button>
+                    <span class="tooltiptext">Add a new shape to the canvas</span>
+                </div>
+                <div class="tooltip">
+                    <button id="RotateShape" class="button button-secondary"><i class="fas fa-sync-alt"></i> Rotate Shape</button>
+                    <span class="tooltiptext">Rotate the selected shape</span>
+                </div>
+                <div class="tooltip">
+                    <button id="PinShape" class="button button-secondary"><i class="fas fa-thumbtack"></i> Pin Shape</button>
+                    <span class="tooltiptext">Pin the selected shape</span>
+                </div>
             </div>
             <div>
-                <button id="DeleteRect" class="button button-danger">Delete Rectangle</button>
-                <button id="ClearCanvas" class="button button-danger">Clear Canvas</button>
-                <button id="SaveCanvas" class="button button-primary">Save Canvas</button>
-                <button id="LoadCanvas" class="button button-primary">Load Canvas</button>
+                <div class="tooltip">
+                    <button id="DeleteRect" class="button button-danger"><i class="fas fa-trash"></i> Delete Rectangle</button>
+                    <span class="tooltiptext">Delete the selected shape</span>
+                </div>
+                <div class="tooltip">
+                    <button id="ClearCanvas" class="button button-danger"><i class="fas fa-eraser"></i> Clear Canvas</button>
+                    <span class="tooltiptext">Clear all shapes from the canvas</span>
+                </div>
+                <div class="tooltip">
+                    <button id="SaveCanvas" class="button button-primary"><i class="fas fa-save"></i> Save Canvas</button>
+                    <span class="tooltiptext">Save the current canvas</span>
+                </div>
+                <div class="tooltip">
+                    <button id="LoadCanvas" class="button button-primary"><i class="fas fa-upload"></i> Load Canvas</button>
+                    <span class="tooltiptext">Load a saved canvas</span>
+                </div>
             </div>
         </div>
     </div>
@@ -124,7 +190,6 @@
             <button id="shapeCircle" class="button button-secondary">Circle</button>
             <button id="shapeOneArrow" class="button button-secondary">One Direction Arrow</button>
             <button id="shapeTwoArrow" class="button button-secondary">Two Direction Arrow</button>
-            <!-- <button id="shapeRectangle" class="button button-secondary">Rectangle</button> -->
             <button id="shapeTiltedRectangle" class="button button-secondary">Tilted Rectangle</button>
             <button id="shapeOval" class="button button-secondary">Oval</button>
             <button id="shapeParallelogram" class="button button-secondary">Parallelogram</button>

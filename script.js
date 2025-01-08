@@ -5,6 +5,8 @@ const clearCanvas = document.getElementById('ClearCanvas');
 const saveCanvas = document.getElementById('SaveCanvas');
 const loadCanvas = document.getElementById('LoadCanvas');
 const addShape = document.getElementById('AddShape');
+const rotateShape = document.getElementById('RotateShape');
+const pinShape = document.getElementById('PinShape');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -21,6 +23,7 @@ function drawRectangles() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     rectangles.forEach(rect => {
         ctx.fillStyle = rect.color;
+        ctx.strokeStyle = rect.borderColor || 'black';
         ctx.save();
         ctx.translate(rect.x, rect.y);
         ctx.rotate(rect.angle || 0);
@@ -28,6 +31,7 @@ function drawRectangles() {
             ctx.beginPath();
             ctx.arc(0, 0, rect.radius, 0, Math.PI * 2);
             ctx.fill();
+            ctx.stroke();
             ctx.closePath();
         } else if (rect.type === 'onearrow' || rect.type === 'twoarrow') {
             ctx.beginPath();
@@ -59,6 +63,7 @@ function drawRectangles() {
             ctx.beginPath();
             ctx.arc(0, 0, rect.radius, 0, Math.PI * 2);
             ctx.fill();
+            ctx.stroke();
             ctx.restore();
         } else if (rect.type === 'parallelogram') {
             ctx.beginPath();
@@ -98,16 +103,27 @@ function drawRectangles() {
             }
         }
         ctx.restore();
+        ctx.save();
+        ctx.translate(rect.x, rect.y);
+        ctx.rotate(rect.angle || 0);
         ctx.fillStyle = 'white';
         ctx.font = '20px Arial';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(rect.text, rect.x + rect.width / 2, rect.y + rect.height / 2);
+        if (rect.type === 'circle' || rect.type === 'oval') {
+            ctx.fillText(rect.text, 0, 0);
+        } else {
+            ctx.fillText(rect.text, rect.width / 2, rect.height / 2);
+        }
+        if (rect.pinned) {
+            ctx.fillText('📌', rect.width / 2, -10);
+        }
+        ctx.restore();
     });
 }
 
 create1.addEventListener('click', () => {
-    const rect = { x: 50, y: 50, width: 200, height: 100, color: currentColor, text: '', angle: 0 };
+    const rect = { x: 50, y: 50, width: 200, height: 100, color: '#ADD8E6', borderColor: '#000080', text: '', angle: 0 };
     rectangles.push(rect);
     selectedRect = rect;
     drawRectangles();
@@ -208,6 +224,27 @@ shapeButtons.forEach(button => {
     });
 });
 
+rotateShape.addEventListener('click', () => {
+    if (selectedRect) {
+        const angle = prompt('Enter rotation angle in degrees:', '45');
+        if (angle !== null) {
+            selectedRect.angle = (selectedRect.angle || 0) + (Math.PI / 180) * parseFloat(angle);
+            drawRectangles();
+        }
+    }
+});
+
+pinShape.addEventListener('click', () => {
+    if (selectedRect) {
+        selectedRect.pinned = !selectedRect.pinned;
+        drawRectangles();
+    }
+});
+
+function snapToGrid(value, gridSize) {
+    return Math.round(value / gridSize) * gridSize;
+}
+
 canvas.addEventListener('mousedown', (e) => {
     const mouseX = e.offsetX;
     const mouseY = e.offsetY;
@@ -250,12 +287,12 @@ canvas.addEventListener('mousedown', (e) => {
 });
 
 canvas.addEventListener('mousemove', (e) => {
-    if (isDragging && selectedRect) {
-        selectedRect.x = e.offsetX - offsetX;
-        selectedRect.y = e.offsetY - offsetY;
+    if (isDragging && selectedRect && !selectedRect.pinned) {
+        selectedRect.x = snapToGrid(e.offsetX - offsetX, 20);
+        selectedRect.y = snapToGrid(e.offsetY - offsetY, 20);
         drawRectangles();
     } else if (isResizing && selectedRect) {
-        selectedRect.width = e.offsetX - selectedRect.x;
+        selectedRect.width = snapToGrid(e.offsetX - selectedRect.x, 20);
         drawRectangles();
     } else if (isRotating && selectedRect) {
         const dx = e.offsetX - selectedRect.x;
@@ -276,7 +313,10 @@ canvas.addEventListener('dblclick', (e) => {
         const input = prompt('Enter text:', selectedRect.text);
         if (input !== null) {
             selectedRect.text = input;
-            if (selectedRect.type !== 'circle') {
+            if (selectedRect.type === 'circle' || selectedRect.type === 'oval') {
+                const textWidth = ctx.measureText(input).width;
+                selectedRect.radius = Math.max(50, textWidth / 2);
+            } else {
                 selectedRect.width = Math.max(200, input.length * 10);
             }
             drawRectangles();
