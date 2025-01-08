@@ -24,6 +24,7 @@ function drawRectangles() {
     rectangles.forEach(rect => {
         ctx.fillStyle = rect.color;
         ctx.strokeStyle = rect.borderColor || 'black';
+        ctx.lineWidth = 2;
         ctx.save();
         ctx.translate(rect.x, rect.y);
         ctx.rotate(rect.angle || 0);
@@ -123,7 +124,7 @@ function drawRectangles() {
 }
 
 create1.addEventListener('click', () => {
-    const rect = { x: 50, y: 50, width: 200, height: 100, color: '#ADD8E6', borderColor: '#000080', text: '', angle: 0 };
+    const rect = { x: 50, y: 50, width: 200, height: 100, color: 'lightblue', borderColor: '#000080', text: '', angle: 0 };
     rectangles.push(rect);
     selectedRect = rect;
     drawRectangles();
@@ -201,21 +202,21 @@ shapeButtons.forEach(button => {
         const shape = button.id.replace('shape', '').toLowerCase();
         let newShape;
         if (shape === 'circle') {
-            newShape = { x: 150, y: 150, radius: 50, color: currentColor, text: '', type: 'circle', angle: 0 };
+            newShape = { x: 150, y: 150, radius: 50, color: currentColor, borderColor: '#000080', text: '', type: 'circle', angle: 0 };
         } else if (shape === 'onearrow') {
-            newShape = { x: 50, y: 50, width: 100, height: 10, color: currentColor, text: '', type: 'onearrow', angle: 0 };
+            newShape = { x: 50, y: 50, width: 100, height: 10, color: currentColor, borderColor: '#000080', text: '', type: 'onearrow', angle: 0 };
         } else if (shape === 'twoarrow') {
-            newShape = { x: 50, y: 50, width: 100, height: 10, color: currentColor, text: '', type: 'twoarrow', angle: 0 };
+            newShape = { x: 50, y: 50, width: 100, height: 10, color: currentColor, borderColor: '#000080', text: '', type: 'twoarrow', angle: 0 };
         } else if (shape === 'rectangle') {
-            newShape = { x: 50, y: 50, width: 200, height: 100, color: currentColor, text: '', type: 'rectangle', angle: 0 };
+            newShape = { x: 50, y: 50, width: 200, height: 100, color: currentColor, borderColor: '#000080', text: '', type: 'rectangle', angle: 0 };
         } else if (shape === 'tiltedrectangle') {
-            newShape = { x: 50, y: 50, width: 200, height: 100, color: currentColor, text: '', type: 'tiltedRectangle', angle: 0 };
+            newShape = { x: 50, y: 50, width: 200, height: 100, color: currentColor, borderColor: '#000080', text: '', type: 'tiltedRectangle', angle: 0 };
         } else if (shape === 'oval') {
-            newShape = { x: 150, y: 150, radius: 50, color: currentColor, text: '', type: 'oval', angle: 0 };
+            newShape = { x: 150, y: 150, radius: 50, color: currentColor, borderColor: '#000080', text: '', type: 'oval', angle: 0 };
         } else if (shape === 'parallelogram') {
-            newShape = { x: 50, y: 50, width: 200, height: 100, color: currentColor, text: '', type: 'parallelogram', angle: 0 };
+            newShape = { x: 50, y: 50, width: 200, height: 100, color: currentColor, borderColor: '#000080', text: '', type: 'parallelogram', angle: 0 };
         } else if (shape === 'kite') {
-            newShape = { x: 50, y: 50, width: 100, height: 100, color: currentColor, text: '', type: 'kite', angle: 0 };
+            newShape = { x: 50, y: 50, width: 100, height: 100, color: currentColor, borderColor: '#000080', text: '', type: 'kite', angle: 0 };
         }
         rectangles.push(newShape);
         selectedRect = newShape;

@@ -125,6 +125,22 @@
             visibility: visible;
             opacity: 1;
         }
+        .tooltip .tooltiptext {
+            background-color: #333333;
+            color: #FFFFFF;
+        }
+        .tooltip .tooltiptext.button-secondary {
+            background-color: #2196F3;
+            color: #FFFFFF;
+        }
+        .tooltip .tooltiptext.button-danger {
+            background-color: #F44336;
+            color: #FFFFFF;
+        }
+        .tooltip .tooltiptext.button-primary {
+            background-color: #4CAF50;
+            color: #FFFFFF;
+        }
     </style>
 </head>
 <body>
@@ -138,41 +154,41 @@
             <div class="mb-4">
                 <div class="tooltip">
                     <button id="Create1" class="button button-secondary"><i class="fas fa-sticky-note"></i> Create Note</button>
-                    <span class="tooltiptext">Create a new note on the canvas</span>
+                    <span class="tooltiptext button-secondary">Create a new note on the canvas</span>
                 </div>
                 <div class="tooltip">
                     <button id="PickColor" class="button button-secondary"><i class="fas fa-palette"></i> Pick Color</button>
-                    <span class="tooltiptext">Pick a color for the shapes</span>
+                    <span class="tooltiptext button-secondary">Pick a color for the shapes</span>
                 </div>
                 <div class="tooltip">
                     <button id="AddShape" class="button button-secondary"><i class="fas fa-shapes"></i> Add Shape</button>
-                    <span class="tooltiptext">Add a new shape to the canvas</span>
+                    <span class="tooltiptext button-secondary">Add a new shape to the canvas</span>
                 </div>
                 <div class="tooltip">
                     <button id="RotateShape" class="button button-secondary"><i class="fas fa-sync-alt"></i> Rotate Shape</button>
-                    <span class="tooltiptext">Rotate the selected shape</span>
+                    <span class="tooltiptext button-secondary">Rotate the selected shape</span>
                 </div>
                 <div class="tooltip">
                     <button id="PinShape" class="button button-secondary"><i class="fas fa-thumbtack"></i> Pin Shape</button>
-                    <span class="tooltiptext">Pin the selected shape</span>
+                    <span class="tooltiptext button-secondary">Pin the selected shape</span>
                 </div>
             </div>
             <div>
                 <div class="tooltip">
                     <button id="DeleteRect" class="button button-danger"><i class="fas fa-trash"></i> Delete Rectangle</button>
-                    <span class="tooltiptext">Delete the selected shape</span>
+                    <span class="tooltiptext button-danger">Delete the selected shape</span>
                 </div>
                 <div class="tooltip">
                     <button id="ClearCanvas" class="button button-danger"><i class="fas fa-eraser"></i> Clear Canvas</button>
-                    <span class="tooltiptext">Clear all shapes from the canvas</span>
+                    <span class="tooltiptext button-danger">Clear all shapes from the canvas</span>
                 </div>
                 <div class="tooltip">
                     <button id="SaveCanvas" class="button button-primary"><i class="fas fa-save"></i> Save Canvas</button>
-                    <span class="tooltiptext">Save the current canvas</span>
+                    <span class="tooltiptext button-primary">Save the current canvas</span>
                 </div>
                 <div class="tooltip">
                     <button id="LoadCanvas" class="button button-primary"><i class="fas fa-upload"></i> Load Canvas</button>
-                    <span class="tooltiptext">Load a saved canvas</span>
+                    <span class="tooltiptext button-primary">Load a saved canvas</span>
                 </div>
             </div>
         </div>
